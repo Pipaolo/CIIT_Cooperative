@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "423746357225",
+    "firebase_url": "https://ciit-cooperative.firebaseio.com",
+    "project_id": "ciit-cooperative",
+    "storage_bucket": "ciit-cooperative.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:423746357225:android:9e57c8d4dfed6616",
+        "android_client_info": {
+          "package_name": "edu.ciit.cooperative"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "423746357225-u6248pji0u0b8r93727dv4i0ljslvkj5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.ciit.cooperative",
+            "certificate_hash": "c305c943cc395444dedf1fcd279ab1bfe0e78f85"
+          }
+        },
+        {
+          "client_id": "423746357225-0brp3apvr633l187pgl0inj7br9paleo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCRQ0KhTq3Y2aoBnf7jO4Z1R8r1Hte_gTA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "423746357225-0brp3apvr633l187pgl0inj7br9paleo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
