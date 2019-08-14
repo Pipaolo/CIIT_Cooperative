@@ -36,7 +36,7 @@ class IntroPage : AppCompatActivity() {
 
         val animate2 = AnimatorSet()
 
-        val tY = ObjectAnimator.ofFloat(textView, View.TRANSLATION_Y, 0f, 100f)
+        val tY = ObjectAnimator.ofFloat(textView, View.TRANSLATION_Y, 0f, 125f)
         tY.setDuration(1000)
         tY.interpolator = AccelerateDecelerateInterpolator()
 

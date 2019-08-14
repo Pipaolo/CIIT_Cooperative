@@ -17,7 +17,12 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:text="Email: "
-            android:textColor="#000000"
+            android:textColor="#FFFFFF"
             android:textSize="30sp"/>
+    <com.google.android.material.button.MaterialButton
+            android:id="@+id/home_btn_signOut"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sign Out"/>
 
 </LinearLayout>

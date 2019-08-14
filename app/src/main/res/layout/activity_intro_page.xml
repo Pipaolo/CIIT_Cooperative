@@ -17,6 +17,7 @@
     <TextView
             android:id="@+id/intro_tv_title"
             android:paddingRight="10sp"
+            android:paddingBottom="20sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"

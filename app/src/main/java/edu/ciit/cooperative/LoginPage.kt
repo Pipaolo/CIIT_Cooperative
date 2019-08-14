@@ -29,11 +29,13 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
+import org.jetbrains.anko.toast
 
 class LoginPage : AppCompatActivity() {
     //Sign In
     val db = FirebaseFirestore.getInstance()
     val RC_SIGN_IN: Int = 1
+    val TAG = "LOGIN"
     lateinit var mGoogleSignInClient: GoogleSignInClient
     lateinit var mGoogleSignInOptions: GoogleSignInOptions
     private lateinit var firebaseAuth: FirebaseAuth
@@ -112,34 +114,46 @@ class LoginPage : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         val user = FirebaseAuth.getInstance().currentUser
-        if (user != null) {
+        if (user != null && user.email!!.contains("ciit.edu.ph")) {
             goToHomePage(user)
+        } else {
+            mGoogleSignInClient.signOut()
         }
     }
 
     private fun goToHomePage(user: FirebaseUser) {
+        val intent = Intent(this, HomePage::class.java)
 
-        startActivity(HomePage.getLaunchIntent(this))
+        Toast.makeText(this, "Welcome ${user.displayName}!", Toast.LENGTH_LONG).show()
+        intent.putExtra("email", user.email)
+        startActivity(intent)
         finish()
-        //To change body of created functions use File | Settings | File Templates.
     }
 
-    companion object {
-        fun getLaunchIntent(from: Context) = Intent(from, LoginPage::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        }
+    private fun signOut(){
+        FirebaseAuth.getInstance().signOut()
+        mGoogleSignInClient.signOut()
     }
 
     private fun firebaseAuthWithGoogle(user: GoogleSignInAccount?) {
         val credential = GoogleAuthProvider.getCredential(user?.idToken, null)
         firebaseAuth.signInWithCredential(credential).addOnCompleteListener {
             if (it.isSuccessful) {
-                Toast.makeText(this, "Login Success!", Toast.LENGTH_SHORT).show()
+                if(user!!.email!!.contains("@ciit.edu.ph")){
+                    Toast.makeText(this, "Welcome ${user.displayName}!", Toast.LENGTH_LONG).show()
+                    intent.putExtra("email", user.email)
+                    startActivity(intent)
+                    finish()
+                } else {
+                    Toast.makeText(this, "Please Use CIIT Email!", Toast.LENGTH_LONG).show()
+                    signOut()
+                    Log.d(TAG, "Signed Out!")
+                }
+                Log.d(TAG, "Success!")
             } else {
-                Toast.makeText(this, "Login Failed!", Toast.LENGTH_SHORT).show()
+                Log.e(TAG, "Failed!")
             }
         }
-
     }
 
     private fun startLogin(username: String, password: String) {
