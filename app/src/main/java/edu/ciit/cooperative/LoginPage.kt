@@ -126,6 +126,7 @@ class LoginPage : AppCompatActivity() {
 
         Toast.makeText(this, "Welcome ${user.displayName}!", Toast.LENGTH_LONG).show()
         intent.putExtra("email", user.email)
+        intent.putExtra("userImage", user.photoUrl.toString())
         startActivity(intent)
         finish()
     }

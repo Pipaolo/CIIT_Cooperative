@@ -7,10 +7,9 @@
         tools:context=".LoginPage">
 
     <include layout="@layout/customtoolbar"/>
+    <include layout="@layout/whitebg"/>
 
-    <FrameLayout android:layout_width="match_parent"
-                 android:layout_height="match_parent"
-                 android:background="#FFFFFF"/>
+
 
     <LinearLayout android:layout_width="match_parent"
                   android:layout_height="wrap_content"

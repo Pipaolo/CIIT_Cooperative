@@ -10,9 +10,7 @@
         style="@style/SplashScreen"
         tools:context=".IntroPage">
 
-    <FrameLayout android:layout_width="match_parent"
-                 android:layout_height="match_parent"
-                 android:background="#FFFFFF"/>
+    <include layout="@layout/whitebg"/>
 
     <TextView
             android:id="@+id/intro_tv_title"
@@ -32,8 +30,8 @@
 
     <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/intro_iv_logo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="150sp"
+            android:layout_height="150sp"
             android:layout_alignParentEnd="true"
             android:layout_centerInParent="true"
     />
