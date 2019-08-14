@@ -23,7 +23,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="#a4a2ad"
-                android:hint="Username">
+                android:hint="Email">
 
             <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/login_et_username"

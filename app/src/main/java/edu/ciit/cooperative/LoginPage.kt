@@ -57,6 +57,8 @@ class LoginPage : AppCompatActivity() {
         setSupportActionBar(toolBar)
         val logo: ImageView = findViewById(R.id.toolbar_iv_logo)
 
+
+        // Load CIIT LOGO
         Picasso.get().load(R.drawable.logo).resize(150, 150).into(object : Target {
             override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
                 Log.d("Picasso:", "Getting Bitmap...")
@@ -131,7 +133,7 @@ class LoginPage : AppCompatActivity() {
         finish()
     }
 
-    private fun signOut(){
+    private fun signOut() {
         FirebaseAuth.getInstance().signOut()
         mGoogleSignInClient.signOut()
     }
@@ -140,7 +142,8 @@ class LoginPage : AppCompatActivity() {
         val credential = GoogleAuthProvider.getCredential(user?.idToken, null)
         firebaseAuth.signInWithCredential(credential).addOnCompleteListener {
             if (it.isSuccessful) {
-                if(user!!.email!!.contains("@ciit.edu.ph")){
+                if (user!!.email!!.contains("@ciit.edu.ph")) {
+                    createUserAccount(user.email.toString())
                     Toast.makeText(this, "Welcome ${user.displayName}!", Toast.LENGTH_LONG).show()
                     intent.putExtra("email", user.email)
                     startActivity(intent)
@@ -157,11 +160,34 @@ class LoginPage : AppCompatActivity() {
         }
     }
 
-    private fun startLogin(username: String, password: String) {
-        if (username.equals("admin") && password.equals("123")) {
-            Toast.makeText(this, "Login Success!", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(this, "Login Failed!", Toast.LENGTH_SHORT).show()
+    private fun startLogin(email: String, password: String) {
+        firebaseAuth = FirebaseAuth.getInstance()
+
+        firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                if (email.contains("ciit.edu.ph")) {
+                    Toast.makeText(this, "Welcome!", Toast.LENGTH_LONG).show()
+                    intent.putExtra("email", email)
+                    startActivity(intent)
+                    finish()
+                } else {
+                    Toast.makeText(this, "Please Use CIIT Email!", Toast.LENGTH_LONG).show()
+                    signOut()
+                    Log.d(TAG, "Signed Out!")
+                }
+            }
+        }
+    }
+
+    private fun createUserAccount(email: String) {
+        firebaseAuth = FirebaseAuth.getInstance()
+
+        firebaseAuth.createUserWithEmailAndPassword(email, "123").addOnCompleteListener(this) { task ->
+            if (task.isSuccessful) {
+                Log.d(TAG, "createUserWithEmail: Success!")
+            } else {
+                Log.w(TAG, "createUserWithEmail:failure")
+            }
         }
     }
 }
