@@ -143,7 +143,11 @@ class LoginPage : AppCompatActivity() {
         firebaseAuth.signInWithCredential(credential).addOnCompleteListener {
             if (it.isSuccessful) {
                 if (user!!.email!!.contains("@ciit.edu.ph")) {
-                    createUserAccount(user.email.toString())
+                    createUserAccount(
+                        user.email.toString(),
+                        user.displayName.toString(),
+                        user.photoUrl.toString()
+                    )
                     Toast.makeText(this, "Welcome ${user.displayName}!", Toast.LENGTH_LONG).show()
                     intent.putExtra("email", user.email)
                     startActivity(intent)
@@ -179,15 +183,18 @@ class LoginPage : AppCompatActivity() {
         }
     }
 
-    private fun createUserAccount(email: String) {
-        firebaseAuth = FirebaseAuth.getInstance()
+    private fun createUserAccount(email: String, name: String, profileImage: String) {
+        val user = hashMapOf(
+            "email" to email,
+            "name" to name,
+            "profileImage" to profileImage,
+            "password" to "123"
+        )
 
-        firebaseAuth.createUserWithEmailAndPassword(email, "123").addOnCompleteListener(this) { task ->
-            if (task.isSuccessful) {
-                Log.d(TAG, "createUserWithEmail: Success!")
-            } else {
-                Log.w(TAG, "createUserWithEmail:failure")
-            }
+        db.collection("users").add(user).addOnSuccessListener { documentReference ->
+            Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+        }.addOnFailureListener { e ->
+            Log.w(TAG, "Error adding document", e)
         }
     }
 }
