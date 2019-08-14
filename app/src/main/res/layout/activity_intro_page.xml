@@ -10,6 +10,10 @@
         style="@style/SplashScreen"
         tools:context=".IntroPage">
 
+    <FrameLayout android:layout_width="match_parent"
+                 android:layout_height="match_parent"
+                 android:background="#FFFFFF"/>
+
     <TextView
             android:id="@+id/intro_tv_title"
             android:paddingRight="10sp"
@@ -18,7 +22,7 @@
             android:layout_centerInParent="true"
             android:layout_alignEnd="@id/intro_iv_logo"
             android:layout_alignParentEnd="true"
-            android:fontFamily="sans-serif"
+            android:fontFamily="@font/roboto_bold"
             android:maxLines="2"
             android:textSize="35sp"
             android:textColor="#000000"
