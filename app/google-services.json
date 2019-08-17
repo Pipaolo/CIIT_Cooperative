@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "423746357225-oo2uak4jqrr8fhmdii3imtcabg24la0v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.ciit.cooperative",
+            "certificate_hash": "0d3fdc446e7ebc672b806e483878a60d6d614244"
+          }
+        },
+        {
           "client_id": "423746357225-u6248pji0u0b8r93727dv4i0ljslvkj5.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

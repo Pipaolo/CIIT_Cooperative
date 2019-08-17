@@ -10,6 +10,10 @@
         <item name="android:colorBackground">@color/background</item>
     </style>
 
+    <style name="CustomDialog" parent="Theme.MaterialComponents.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+
     <style name="SplashScreen" parent="Theme.MaterialComponents.NoActionBar">
         <item name="android:windowTranslucentStatus">true</item>
         <item name="colorPrimary">#6200EE</item>

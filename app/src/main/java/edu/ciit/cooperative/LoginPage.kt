@@ -1,12 +1,10 @@
 package edu.ciit.cooperative
 
-import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -18,22 +16,22 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.SignInButton
-import com.google.android.gms.common.api.Api
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
+import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
-import org.jetbrains.anko.toast
 
 class LoginPage : AppCompatActivity() {
     //Sign In
-    val db = FirebaseFirestore.getInstance()
+    var db = FirebaseFirestore.getInstance()
     val RC_SIGN_IN: Int = 1
     val TAG = "LOGIN"
     lateinit var mGoogleSignInClient: GoogleSignInClient
@@ -41,7 +39,6 @@ class LoginPage : AppCompatActivity() {
     private lateinit var firebaseAuth: FirebaseAuth
 
     //End of Google Sign In
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login_page)
@@ -79,11 +76,9 @@ class LoginPage : AppCompatActivity() {
         submit.setOnClickListener {
             startLogin(username?.text.toString(), password?.text.toString())
         }
-
         googleSignIn.setOnClickListener {
             signIn()
         }
-
     }
 
     private fun configureGoogleSignIn() {
@@ -133,6 +128,16 @@ class LoginPage : AppCompatActivity() {
         finish()
     }
 
+    private fun goToHomePage(user: DocumentSnapshot) {
+        val intent = Intent(this, HomePage::class.java)
+
+        Toast.makeText(this, "Welcome ${user["name"]}!", Toast.LENGTH_LONG).show()
+        intent.putExtra("email", user["email"].toString())
+        intent.putExtra("userImage", user["profileImage"].toString())
+        startActivity(intent)
+        finish()
+    }
+
     private fun signOut() {
         FirebaseAuth.getInstance().signOut()
         mGoogleSignInClient.signOut()
@@ -140,13 +145,15 @@ class LoginPage : AppCompatActivity() {
 
     private fun firebaseAuthWithGoogle(user: GoogleSignInAccount?) {
         val credential = GoogleAuthProvider.getCredential(user?.idToken, null)
+        Log.d(TAG, credential.toString())
         firebaseAuth.signInWithCredential(credential).addOnCompleteListener {
             if (it.isSuccessful) {
                 if (user!!.email!!.contains("@ciit.edu.ph")) {
                     createUserAccount(
                         user.email.toString(),
                         user.displayName.toString(),
-                        user.photoUrl.toString()
+                        user.photoUrl.toString(),
+                        user.idToken
                     )
                     Toast.makeText(this, "Welcome ${user.displayName}!", Toast.LENGTH_LONG).show()
                     intent.putExtra("email", user.email)
@@ -165,34 +172,35 @@ class LoginPage : AppCompatActivity() {
     }
 
     private fun startLogin(email: String, password: String) {
-        firebaseAuth = FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance()
 
-        firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                if (email.contains("ciit.edu.ph")) {
-                    Toast.makeText(this, "Welcome!", Toast.LENGTH_LONG).show()
-                    intent.putExtra("email", email)
-                    startActivity(intent)
-                    finish()
-                } else {
-                    Toast.makeText(this, "Please Use CIIT Email!", Toast.LENGTH_LONG).show()
-                    signOut()
-                    Log.d(TAG, "Signed Out!")
+        db.collection("users").whereEqualTo("email", email).whereEqualTo("password", password).get()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    Log.d(TAG, "${document.id} => ${document.data}")
+                    Toast.makeText(this, "Welcome ${document.data["name"]}!", Toast.LENGTH_LONG).show()
+                    val credential: AuthCredential = GoogleAuthProvider.getCredential(document["id"].toString(), null)
+                    FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener {
+                        Toast.makeText(this, "Welcome ${document.data["name"]}!", Toast.LENGTH_LONG).show()
+                        goToHomePage(document)
                 }
             }
+            }.addOnFailureListener { exception ->
+            Toast.makeText(this, "Please Sign In, Through Google First", Toast.LENGTH_LONG).show()
+            Log.w(TAG, "Error getting documents: ", exception)
         }
     }
 
-    private fun createUserAccount(email: String, name: String, profileImage: String) {
+    private fun createUserAccount(email: String, name: String, profileImage: String, id: String?) {
         val user = hashMapOf(
+            "id" to id,
             "email" to email,
             "name" to name,
             "profileImage" to profileImage,
             "password" to "123"
         )
-
-        db.collection("users").add(user).addOnSuccessListener { documentReference ->
-            Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+        db.collection("users").document(email).set(user).addOnSuccessListener {
+            Log.d(TAG, "DocumentSnapshot added!")
         }.addOnFailureListener { e ->
             Log.w(TAG, "Error adding document", e)
         }
