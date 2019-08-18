@@ -1,93 +1,78 @@
 package edu.ciit.cooperative
 
 import android.app.Dialog
-import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.Window
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
-import androidx.core.graphics.drawable.RoundedBitmapDrawable
-import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter
-import com.firebase.ui.firestore.FirestoreRecyclerOptions
+import coil.api.load
+import coil.transform.CircleCropTransformation
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
-import com.squareup.picasso.Picasso
-import com.squareup.picasso.Target
-import edu.ciit.cooperative.Models.Member
+import com.jjoe64.graphview.GraphView
+import com.jjoe64.graphview.LegendRenderer
+import com.jjoe64.graphview.series.DataPoint
+import com.jjoe64.graphview.series.LineGraphSeries
+import edu.ciit.cooperative.Fragments.ListMembersFragment
 import edu.ciit.cooperative.Models.Menu
-import org.jetbrains.anko.find
+import edu.ciit.cooperative.RecyclerViews.MenuAdapter
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.toast
+import org.jetbrains.anko.uiThread
 
 class HomePage : AppCompatActivity() {
 
-    private var memberFirestoreRecyclerAdapter: MemberFirestoreRecyclerAdapter? = null
-
-    fun addMembers() {
-        val customDialog = Dialog(this)
-        customDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        customDialog.setContentView(R.layout.home_custom_dialog_add_user)
-
-        val closeBtn: ImageView = customDialog.findViewById(R.id.home_customDialog_close)
-        val recyclerView: RecyclerView = customDialog.findViewById(R.id.home_customDialog_recyclerview)
-
-        recyclerView.layoutManager = LinearLayoutManager(this)
-
-        val rootRef = FirebaseFirestore.getInstance()
-        val query = rootRef.collection("users").orderBy("email", Query.Direction.ASCENDING)
-        val options = FirestoreRecyclerOptions.Builder<Member>().setQuery(query, Member::class.java).build()
-
-        memberFirestoreRecyclerAdapter = MemberFirestoreRecyclerAdapter(options)
-        recyclerView.adapter = memberFirestoreRecyclerAdapter
-
-        closeBtn.setOnClickListener {
-
-            customDialog.dismiss()
-        }
-
-        customDialog.setOnShowListener {
-            memberFirestoreRecyclerAdapter!!.startListening()
-        }
-
-        customDialog.setOnDismissListener {
-            memberFirestoreRecyclerAdapter!!.stopListening()
-        }
-
-        customDialog.show()
-    }
+    val db = FirebaseFirestore.getInstance()
+    val TAG = "HOMEPAGE:"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home_page)
-
+        FirebaseFirestore.setLoggingEnabled(true)
         val string: String? = intent.getStringExtra("email")
         val userImage: String? = intent.getStringExtra("userImage")
         val signOut: MaterialButton = findViewById(R.id.home_btn_signOut)
 
-
-        val dashboardMenu: GridView = findViewById(R.id.home_gv_dashboard)
+        val appBarMenu: ImageView = findViewById(R.id.toolbar_iv_menu)
         val appBarTitle: TextView = findViewById(R.id.toolbar_tv_title)
-        val appBarImage: ImageView = findViewById(R.id.toolbar_iv_logo)
+        val appBarLogo: ImageView = findViewById(R.id.toolbar_iv_logo)
+        val appBarImage: ImageView = findViewById(R.id.toolbar_iv_profile)
+        val graphSummary: GraphView = findViewById(R.id.home_graphView_summary)
+        val recyclerViewMenu: RecyclerView = findViewById(R.id.home_recyclerView_menu)
 
-        loadImage(userImage, appBarImage, 150, 150)
+        generateGraph(graphSummary)
+
+        appBarLogo.load(R.drawable.logo) {
+            crossfade(true)
+            size(100, 100)
+            transformations(CircleCropTransformation())
+        }
+
 
         if (string!!.contains("paolo.tolentino")) {
-            changeAppTitle(appBarTitle, "Admin")
-            generateUI(true, dashboardMenu)
+            changeAppTitle(appBarTitle, appBarImage)
+            appBarImage.load(userImage) {
+                crossfade(true)
+                size(200, 200)
+                transformations(CircleCropTransformation())
+            }
+            generateUI(true, recyclerViewMenu)
         } else {
-            changeAppTitle(appBarTitle, "Home")
-            generateUI(false, dashboardMenu)
+            appBarImage.load(userImage) {
+                crossfade(true)
+                size(200, 200)
+                transformations(CircleCropTransformation())
+            }
+            changeAppTitle(appBarTitle, appBarImage)
         }
 
         signOut.setOnClickListener {
@@ -101,113 +86,249 @@ class HomePage : AppCompatActivity() {
 
     }
 
-    private fun generateUI(isAdmin: Boolean, menu: GridView) {
-        val adapter: MenuAdapter?
-        val menuList = ArrayList<Menu>()
+    private fun generateGraph(graph: GraphView) {
+        val loansSeries = LineGraphSeries(
+            arrayOf(
+                DataPoint(1.0, 20.0),
+                DataPoint(3.0, 10.0),
+                DataPoint(3.0, 30.0),
+                DataPoint(5.0, 20.0),
+                DataPoint(6.0, 12.0)
+            )
+        )
 
+        loansSeries.title = "Loans"
+        loansSeries.color = resources.getColor(R.color.colorPlum, null)
+        loansSeries.isDrawBackground = true
+        loansSeries.backgroundColor = Color.argb(50, 224, 140, 192)
+        loansSeries.thickness = 10
+
+        val shareSeries = LineGraphSeries(
+            arrayOf(
+                DataPoint(1.0, 3.0),
+                DataPoint(2.0, 5.0),
+                DataPoint(3.0, 3.0),
+                DataPoint(5.0, 12.0),
+                DataPoint(6.0, 24.0)
+            )
+        )
+
+        shareSeries.title = "Shares"
+        shareSeries.color = resources.getColor(R.color.colorDeepPink, null)
+        shareSeries.isDrawBackground = true
+        shareSeries.backgroundColor = Color.argb(50, 229, 30, 173)
+        shareSeries.thickness = 10
+
+        graph.addSeries(loansSeries)
+        graph.addSeries(shareSeries)
+        graph.legendRenderer.isVisible = true
+        graph.legendRenderer.align = LegendRenderer.LegendAlign.MIDDLE
+        graph.legendRenderer.textColor = resources.getColor(android.R.color.white, null)
+        graph.legendRenderer.backgroundColor = resources.getColor(android.R.color.transparent, null)
+        graph.gridLabelRenderer.isHorizontalLabelsVisible = false
+        graph.gridLabelRenderer.isVerticalLabelsVisible = false
+        graph.gridLabelRenderer.gridColor = resources.getColor(android.R.color.transparent, null)
+    }
+
+    private fun generateUI(isAdmin: Boolean, menu: RecyclerView) {
+        val menuList = ArrayList<Menu>()
+        val colorList = ArrayList<Int>()
+        val layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         if (isAdmin) {
             menuList.add(Menu("Members"))
-            menuList.add(Menu("Add Member"))
-            menuList.add(Menu("Temp 1"))
-            menuList.add(Menu("Temp 2"))
+            menuList.add(Menu("Members/Shares"))
+            menuList.add(Menu("Loans"))
+            menuList.add(Menu("Shares"))
+            menuList.add(Menu("Loan Requests"))
+
+            colorList.add(Color.argb(215, 108, 24, 164))
+            colorList.add(Color.argb(215, 56, 39, 180))
+            colorList.add(Color.argb(215, 224, 140, 192))
+            colorList.add(Color.argb(215, 108, 24, 164))
+            colorList.add(Color.argb(215, 56, 39, 180))
+
         } else {
 
         }
-
-        adapter = MenuAdapter(this, menuList)
+        val adapter = MenuAdapter(
+            this,
+            menuList,
+            colorList,
+            { menuItem: Menu -> menuItemClicked(menuItem) })
+        menu.setHasFixedSize(true)
+        menu.layoutManager = layoutManager
         menu.adapter = adapter
     }
 
-    private fun loadImage(userImage: String?, imageView: ImageView, width: Int, height: Int) {
-        Picasso.get().load(userImage).resize(width, height).into(object : Target {
-            override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
-                Log.d("Picasso:", "Getting Bitmap...${userImage}")
-            }
+    private fun menuItemClicked(menuItem: Menu) {
 
-            override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
-                Log.e("Picasso:", "Load Bitmap Failed!")
-            }
-
-            override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
-                Log.d("Picasso:", "Load Bitmap Success!")
-                val dr: RoundedBitmapDrawable = RoundedBitmapDrawableFactory.create(resources, bitmap)
-                dr.cornerRadius = 100f
-                imageView.setImageDrawable(dr)
-            }
-        })
-    }
-
-
-    private inner class MemberViewHolder internal constructor(private val view: View) : RecyclerView.ViewHolder(view) {
-        internal fun setMember(email: String, id: String, name: String, password: String, profileImage: String?) {
-            val textView_email: TextView = view.findViewById(R.id.home_customDialog_tv_email)
-            val textView_name: TextView = view.findViewById(R.id.home_customDialog_tv_name)
-            val textView_password: TextView = view.findViewById(R.id.home_customDialog_tv_password)
-            val imageView_profileImage: ImageView = view.findViewById(R.id.home_customDialog_iv_profileImage)
-
-            textView_email.setText("Email: $email")
-            textView_name.setText("Name: $name")
-            textView_password.setText("Password: $password")
-            loadImage(profileImage, imageView_profileImage, 150, 150)
+        when (menuItem.title) {
+            "Members" -> listMembers()
+            "Members/Shares" -> addMembers()
+            "Loans" -> Log.d(TAG, "Loans")
+            "Shares" -> Log.d(TAG, "Shares")
+            "Loan Requests" -> Log.d(TAG, "Loan Requests")
         }
     }
 
-    private inner class MemberFirestoreRecyclerAdapter internal constructor(options: FirestoreRecyclerOptions<Member>) :
-        FirestoreRecyclerAdapter<Member, MemberViewHolder>(options) {
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemberViewHolder {
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.home_custom_dialog_member, parent, false)
-            return MemberViewHolder(view)
-        }
 
-        override fun onBindViewHolder(p0: MemberViewHolder, p1: Int, p2: Member) {
-            p0.setMember(p2.email, p2.id, p2.name, p2.password, p2.profileImage)
-
-        }
+    private fun listMembers() {
+        val listMemberFragment = ListMembersFragment()
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.replace(R.id.home_fragment_listMembers, listMemberFragment)
+        transaction.addToBackStack(null)
+        transaction.commit()
+        toast("List Members!")
     }
 
-    private inner class MenuAdapter : BaseAdapter {
-        var menuList = ArrayList<Menu>()
-        var context: Context? = null
+    private fun addMembers() {
+        val customDialog = Dialog(this)
+        customDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        customDialog.setContentView(R.layout.custom_dialog_add_member_menu)
+        customDialog.setCancelable(false)
 
-        constructor(context: Context, menuList: ArrayList<Menu>) : super() {
-            this.menuList = menuList
-            this.context = context
-        }
+        val closeBtn: ImageView = customDialog.findViewById(R.id.home_customDialog_close)
+        val textViewAddMember: TextView = customDialog.findViewById(R.id.home_customDialog_tv_addMember)
+        val textViewAddShare: TextView = customDialog.findViewById(R.id.home_customDialog_tv_addShares)
 
-        override fun getView(p0: Int, p1: View?, p2: ViewGroup?): View {
-            val menuTitle = this.menuList[p0]
+        textViewAddShare.setOnClickListener {
+            customDialog.dismiss()
+            customDialog.setContentView(R.layout.custom_dialog_add_shares)
 
-            val inflator = context!!.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            val menuView = inflator.inflate(R.layout.home_dashboard_menu, null)
-            val cardView: CardView = p1!!.findViewById(R.id.home_cardView_dashboardMenu)
-            val textView: TextView = p1.find(R.id.home_cardView_dashboardMenuTitle)
+            val cancelBtn: Button = customDialog.findViewById(R.id.custom_dialog_add_shares_btn_cancel)
+            val submitBtn: Button = customDialog.findViewById(R.id.custom_dialog_add_shares_btn_submit)
+            val email: EditText = customDialog.findViewById(R.id.custom_dialog_add_shares_et_email)
+            val amount: EditText = customDialog.findViewById(R.id.custom_dialog_add_shares_et_amount)
 
-            textView.setText(menuTitle.title)
+            submitBtn.setOnClickListener {
+                val batch = db.batch()
+                val user = db.collection("users").whereEqualTo("email", email.text.toString()).get()
+                    .addOnSuccessListener { documents ->
+                        var docId: DocumentReference? = null
+                        for (document in documents) {
+                            if (document.data["email"].toString().equals(email.text.toString())) {
+                                docId = document.reference
+                                break
+                            }
+                        }
 
-            cardView.setOnClickListener {
-                when (textView.text) {
-                    "Members" -> Toast.makeText(context, "Members", Toast.LENGTH_SHORT)
-                    "Add Member" -> addMembers()
+                        if (docId != null) {
+                            batch.update(docId, "totalContributions", FieldValue.increment(1))
+                            batch.update(docId, "totalShares", FieldValue.increment(amount.text.toString().toDouble()))
+                            batch.commit().addOnSuccessListener {
+                                toast("Added ShareHolder!")
+                                customDialog.dismiss()
+                            }.addOnFailureListener {
+                                Log.w("FireStore: ", "Document Failed To Update!")
+                            }
+                        } else {
+
+                            toast("User does not exists!")
+                        }
+
+                    }.addOnFailureListener {
+                    Log.w("FireStore: ", "Document Failed To Update!")
                 }
             }
 
-            return menuView
+            cancelBtn.setOnClickListener {
+                customDialog.dismiss()
+            }
+
+            customDialog.show()
+
         }
 
-        override fun getItem(p0: Int): Any {
-            return menuList[p0]
+        textViewAddMember.setOnClickListener {
+            customDialog.dismiss()
+            customDialog.setContentView(R.layout.custom_dialog_add_member)
+
+            val cancelBtn: Button = customDialog.findViewById(R.id.custom_dialog_add_member_btn_cancel)
+            val submitBtn: Button = customDialog.findViewById(R.id.custom_dialog_add_member_btn_submit)
+            val email: EditText = customDialog.findViewById(R.id.custom_dialog_add_member_et_email)
+            val firstName: EditText = customDialog.findViewById(R.id.custom_dialog_add_member_et_firstName)
+            val middleName: EditText = customDialog.findViewById(R.id.custom_dialog_add_member_et_middleName)
+            val lastName: EditText = customDialog.findViewById(R.id.custom_dialog_add_member_et_lastName)
+
+            cancelBtn.setOnClickListener {
+                customDialog.dismiss()
+            }
+
+            submitBtn.setOnClickListener {
+
+                if (email.text.toString().contains("@ciit.edu.ph")) {
+                    createUserAccount(
+                        email.text.toString(),
+                        "${firstName.text} ${middleName.text[0].toUpperCase()}. ${lastName.text}",
+                        null,
+                        null
+                    )
+                    customDialog.dismiss()
+                } else {
+                    toast("Please Use CIIT Email!")
+                }
+            }
+            customDialog.show()
         }
 
-        override fun getItemId(p0: Int): Long {
-            return p0.toLong()
+        closeBtn.setOnClickListener {
+
+            customDialog.dismiss()
         }
 
-        override fun getCount(): Int {
-            return menuList.size
+        customDialog.setOnShowListener {
+            //            memberFirestoreRecyclerAdapter!!.startListening()
+        }
+
+        customDialog.setOnDismissListener {
+            //            memberFirestoreRecyclerAdapter!!.stopListening()
+        }
+
+        customDialog.show()
+    }
+
+    private fun createUserAccount(email: String, name: String, profileImage: String?, id: String?) {
+        val db = FirebaseFirestore.getInstance()
+        val docRef = db.collection("users")
+        var isUserExists = false
+
+        doAsync {
+            docRef.whereEqualTo("email", email).get().addOnSuccessListener { documents ->
+                for (document in documents) {
+                    if (document.id == email) {
+                        isUserExists = true
+                        break
+                    }
+                }
+            }.addOnFailureListener { e ->
+                Log.w(TAG, "Exception: $e")
+            }
+
+            uiThread {
+                if (!isUserExists) {
+                    val user = hashMapOf(
+                        "id" to id,
+                        "email" to email,
+                        "name" to name,
+                        "profileImage" to profileImage,
+                        "password" to "123",
+                        "ableToLoan" to false,
+                        "totalLoans" to 0.0,
+                        "totalShare" to 0.0,
+                        "totalContributions" to 1
+                    )
+                    docRef.document(email).set(user)
+                        .addOnSuccessListener { toast("Member Added!") }
+                        .addOnFailureListener { Log.w(TAG, "Error adding document") }
+                } else {
+                    toast("Member Exists!")
+                }
+            }
         }
     }
 
-    private fun changeAppTitle(appBarTitle: TextView, string: String) {
-        appBarTitle.text = string
+    private fun changeAppTitle(appBarTitle: TextView, profileImage: ImageView) {
+        appBarTitle.visibility = View.INVISIBLE
+        profileImage.visibility = View.VISIBLE
     }
 }

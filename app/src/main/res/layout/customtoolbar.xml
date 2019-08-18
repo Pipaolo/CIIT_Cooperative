@@ -4,32 +4,63 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/toolbar_custom"
         android:layout_width="match_parent"
-        android:layout_height="80sp"
+        android:layout_height="60sp"
         android:background="@drawable/appbargradient"
         android:elevation="5sp">
 
     <RelativeLayout android:layout_width="match_parent"
                     android:layout_height="wrap_content">
-        <ImageView
-                android:layout_centerVertical="true"
-                android:id="@+id/toolbar_iv_logo"
+
+        <TextView
+                android:id="@+id/toolbar_tv_logoTitle1"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/toolbar_iv_logo"
+                android:layout_marginTop="18dp"
+                android:text="CIIT"
+                android:textSize="13sp"
+                android:fontFamily="@font/roboto_bold"/>
+
+        <TextView
+                android:id="@+id/toolbar_tv_logoTitle2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/toolbar_iv_logo"
+                android:layout_below="@id/toolbar_tv_logoTitle1"
+                android:text="COOPERATIVE"
+                android:textSize="13sp"
+                android:fontFamily="@font/roboto_bold"/>
 
         <TextView
                 style="@style/AppBarTitle"
                 android:id="@+id/toolbar_tv_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
                 android:text="Sign In"
-                android:layout_centerInParent="true" android:fontFamily="@font/roboto_light"/>
+                android:fontFamily="@font/roboto_light"/>
 
         <ImageView
-                android:id="@+id/toolbar_menu"
+                android:layout_centerInParent="true"
+                android:id="@+id/toolbar_iv_profile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"/>
+
+        <ImageView
+                android:layout_centerVertical="true"
+                android:id="@+id/toolbar_iv_logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        <ImageView
+                android:id="@+id/toolbar_iv_menu"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:padding="20sp"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:padding="12sp"
+                android:clickable="true"
                 android:src="@drawable/ic_menu"/>
 
     </RelativeLayout>

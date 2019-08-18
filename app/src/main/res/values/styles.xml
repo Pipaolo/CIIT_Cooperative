@@ -5,9 +5,10 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">#3827b4</item>
         <item name="colorPrimaryDark">#6c18a4</item>
-        <item name="colorAccent">#3827b4</item>
+        <item name="colorAccent">#e51ead</item>
         <item name="colorError">#E1341E</item>
         <item name="android:colorBackground">@color/background</item>
+        <item name="android:fontFamily">Roboto</item>
     </style>
 
     <style name="CustomDialog" parent="Theme.MaterialComponents.Dialog">

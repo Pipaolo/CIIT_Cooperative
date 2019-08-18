@@ -21,7 +21,7 @@ class IntroPage : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_intro_page)
 
-        val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+        val policy: StrictMode.ThreadPolicy = StrictMode.ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
 
         val imageView = findViewById(R.id.intro_iv_logo) as ImageView

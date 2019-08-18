@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="210dp"
+                android:background="@drawable/appbargradient">
+
+    <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/home_customDialog_close"
+            android:clickable="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_close_black_24dp"
+            android:layout_marginTop="7dp"
+            android:layout_marginEnd="7dp"
+            android:layout_alignParentEnd="true"
+    />
+
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="vertical">
+
+
+        <com.google.android.material.card.MaterialCardView
+                android:id="@+id/home_customDialog_cardView_addMember"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginStart="20dp"
+                app:cardBackgroundColor="#b3e08cc0"
+                app:cardCornerRadius="10dp">
+
+            <TextView
+                    android:id="@+id/home_customDialog_tv_addMember"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:textSize="30sp"
+                    android:text="Add Member"
+                    android:textAlignment="center"
+                    android:paddingTop="20dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:fontFamily="@font/roboto_bold"/>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+                android:id="@+id/home_customDialog_cardView_addShareHolder"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginStart="20dp"
+                android:paddingBottom="20dp"
+                app:cardCornerRadius="10dp"
+                app:cardBackgroundColor="#b3e51ead">
+
+            <TextView
+                    android:id="@+id/home_customDialog_tv_addShares"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:textSize="30sp"
+                    android:text="Add Shares \n(Existing User)"
+                    android:textAlignment="center"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:fontFamily="@font/roboto_bold"/>
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+
+
+</RelativeLayout>

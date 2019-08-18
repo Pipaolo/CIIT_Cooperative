@@ -8,36 +8,46 @@
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
         android:orientation="vertical"
+        android:id="@+id/home_container"
         tools:context=".HomePage">
 
     <include layout="@layout/customtoolbar"/>
     <include layout="@layout/whitebg"/>
 
+    <com.google.android.material.card.MaterialCardView
+            android:id="@+id/home_cardView_dashboardGraph"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="55dp">
+
+        <com.jjoe64.graphview.GraphView
+                android:id="@+id/home_graphView_summary"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:background="@drawable/appbargradient"
+                android:title="Summary"
+        />
+
+    </com.google.android.material.card.MaterialCardView>
+
     <TextView
             android:id="@+id/home_tv_dashboard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="100dp"
-            android:layout_marginBottom="30dp"
-            android:textSize="35sp"
+            android:layout_below="@id/home_cardView_dashboardGraph"
+            android:layout_marginTop="10dp"
+            android:text="Dashboard"
+            android:textSize="25sp"
             android:textColor="#000000"
             android:textAlignment="center"
-            android:text="Dashboard"/>
+            android:fontFamily="@font/roboto_bold"/>
 
-    <GridView
-            android:id="@+id/home_gv_dashboard"
+    <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/home_recyclerView_menu"
+            android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_below="@id/home_tv_dashboard"
-            android:layout_above="@id/home_btn_signOut"
-            android:columnWidth="150dp"
-            android:horizontalSpacing="15dp"
-            android:numColumns="auto_fit"
-            android:verticalSpacing="15dp">
-
-    </GridView>
-
+            android:layout_below="@id/home_tv_dashboard"/>
 
     <com.google.android.material.button.MaterialButton
             android:id="@+id/home_btn_signOut"
@@ -46,8 +56,16 @@
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="10sp"
             android:layout_marginRight="10sp"
-            app:cornerRadius="50sp"
+            android:backgroundTint="@color/colorPrimary"
+            app:cornerRadius="10dp"
+            android:visibility="invisible"
             android:text="Sign Out"/>
+
+    <FrameLayout
+            android:id="@+id/home_fragment_listMembers"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/home_cardView_dashboardGraph"/>
 
 
 </RelativeLayout>
