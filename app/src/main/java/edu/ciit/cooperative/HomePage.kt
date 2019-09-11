@@ -193,7 +193,6 @@ class HomePage : AppCompatActivity() {
 
     }
 
-
     private fun addMembers() {
         val addMemberFragment = AddMemberFragment()
         val transaction = supportFragmentManager.beginTransaction()
@@ -227,7 +226,8 @@ class HomePage : AppCompatActivity() {
                         "name" to name,
                         "profileImage" to profileImage,
                         "password" to "123",
-                        "ableToLoan" to false,
+                        "isAbleToLoan" to false,
+                        "isShareholder" to false,
                         "totalLoans" to 0.0,
                         "totalShare" to 0.0,
                         "totalContributions" to 1

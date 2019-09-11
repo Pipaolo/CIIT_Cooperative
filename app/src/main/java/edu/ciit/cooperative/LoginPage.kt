@@ -26,8 +26,6 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-import com.squareup.picasso.Picasso
-import com.squareup.picasso.Target
 
 class LoginPage : AppCompatActivity() {
     //Sign In

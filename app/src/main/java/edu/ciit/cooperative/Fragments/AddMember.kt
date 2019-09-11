@@ -51,7 +51,6 @@ class AddMemberFragment : Fragment() {
                 }
             }
         }
-
         return view
     }
 

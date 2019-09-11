@@ -11,7 +11,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.SwitchCompat
-import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -26,7 +25,7 @@ import edu.ciit.cooperative.R
 import org.jetbrains.anko.find
 
 class ListMembersFragment : Fragment() {
-    private var memberFirestoreRecyclerAdapter: ListMembersFragment.MemberFirestoreRecyclerAdapter? = null
+    private var memberFirestoreRecyclerAdapter: MemberFirestoreRecyclerAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,10 +47,9 @@ class ListMembersFragment : Fragment() {
 
     private inner class MemberViewHolder internal constructor(private val view: View) : RecyclerView.ViewHolder(view),
         View.OnLongClickListener {
-        val switch_ableToLoan: SwitchCompat = view.findViewById(R.id.home_member_card_switch_loan)
-        val textView_name: TextView = view.findViewById(R.id.home_member_card_tv_name)
-        val imageView_profile: ImageView = view.findViewById(R.id.home_member_card_iv_profileImage)
-        val memberCardView: CardView = view.findViewById(R.id.home_cardView_memberTemplate)
+        val switchAbletoloan: SwitchCompat = view.findViewById(R.id.home_member_card_switch_loan)
+        val textviewName: TextView = view.findViewById(R.id.home_member_card_tv_name)
+        val imageviewProfile: ImageView = view.findViewById(R.id.home_member_card_iv_profileImage)
 
         var profileImage: String? = null
         var email = ""
@@ -91,24 +89,24 @@ class ListMembersFragment : Fragment() {
             this.totalShares = totalShares1
             this.totalContributions = totalContributions1
 
-            textView_name.setText(name1)
-            switch_ableToLoan.isChecked = ableToLoan1
+            textviewName.text = name1
+            switchAbletoloan.isChecked = ableToLoan1
 
-            switch_ableToLoan.setOnCheckedChangeListener { compoundButton, b ->
+            switchAbletoloan.setOnCheckedChangeListener { compoundButton, b ->
                 if (b) {
                     val user = FirebaseFirestore.getInstance().collection("users").document(email1)
-                    user.update("ableToLoan", true).addOnSuccessListener {
+                    user.update("isAbleToLoan", true).addOnSuccessListener {
                         Toast.makeText(context, "$name Can now Loan!", Toast.LENGTH_LONG).show()
                     }.addOnFailureListener { Log.w("FireStore: ", "Failed to update user") }
                 } else {
                     val user = FirebaseFirestore.getInstance().collection("users").document(email1)
-                    user.update("ableToLoan", false).addOnSuccessListener {
+                    user.update("isAbleToLoan", false).addOnSuccessListener {
                         Toast.makeText(context, "$name Cannot Loan!", Toast.LENGTH_LONG).show()
                     }.addOnFailureListener { Log.w("FireStore: ", "Failed to update user") }
                 }
             }
 
-            imageView_profile.load(profileImage1) {
+            imageviewProfile.load(profileImage1) {
                 placeholder(R.drawable.ic_person_black_24dp)
                 crossfade(true)
                 size(200)
@@ -131,12 +129,11 @@ class ListMembersFragment : Fragment() {
                 p2.name,
                 p2.password,
                 p2.profileImage,
-                p2.ableToLoan,
+                p2.isAbleToLoan,
                 p2.totalLoans,
                 p2.totalShares,
                 p2.totalContributions
             )
-
         }
     }
 

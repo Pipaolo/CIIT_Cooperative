@@ -12,7 +12,7 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.squareup.picasso.Picasso
+import coil.api.load
 
 
 class IntroPage : AppCompatActivity() {
@@ -27,7 +27,10 @@ class IntroPage : AppCompatActivity() {
         val imageView = findViewById(R.id.intro_iv_logo) as ImageView
         val textView: TextView = findViewById(R.id.intro_tv_title)
 
-        Picasso.get().load(R.drawable.logo).resize(400, 400).into(imageView)
+
+        imageView.load(R.drawable.logo){
+            size(400,400)
+        }
 
         val animate = AnimatorSet()
         val tX = ObjectAnimator.ofFloat(imageView, View.TRANSLATION_X, 0f, -650f)
