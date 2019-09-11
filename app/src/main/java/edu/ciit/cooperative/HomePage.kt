@@ -22,6 +22,7 @@ import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.LegendRenderer
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
+import edu.ciit.cooperative.Fragments.AddMemberFragment
 import edu.ciit.cooperative.Fragments.ListMembersFragment
 import edu.ciit.cooperative.Models.Menu
 import edu.ciit.cooperative.RecyclerViews.MenuAdapter
@@ -33,6 +34,8 @@ class HomePage : AppCompatActivity() {
 
     val db = FirebaseFirestore.getInstance()
     val TAG = "HOMEPAGE:"
+    var homeTitle: TextView? = null
+    var graphSummary: GraphView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,36 +47,32 @@ class HomePage : AppCompatActivity() {
 
         val appBarMenu: ImageView = findViewById(R.id.toolbar_iv_menu)
         val appBarTitle: TextView = findViewById(R.id.toolbar_tv_title)
-        val appBarLogo: ImageView = findViewById(R.id.toolbar_iv_logo)
         val appBarImage: ImageView = findViewById(R.id.toolbar_iv_profile)
-        val graphSummary: GraphView = findViewById(R.id.home_graphView_summary)
+        val appBarUserStatus: TextView = findViewById(R.id.toolbar_tv_userStatus)
         val recyclerViewMenu: RecyclerView = findViewById(R.id.home_recyclerView_menu)
+        graphSummary = findViewById(R.id.home_graphView_summary)
+        homeTitle = findViewById(R.id.home_panel_title)
 
         generateGraph(graphSummary)
 
-        appBarLogo.load(R.drawable.logo) {
-            crossfade(true)
-            size(100, 100)
-            transformations(CircleCropTransformation())
-        }
-
+        appBarMenu.visibility = View.VISIBLE
 
         if (string!!.contains("paolo.tolentino")) {
-            changeAppTitle(appBarTitle, appBarImage)
+            appBarUserStatus.visibility = View.VISIBLE
             appBarImage.load(userImage) {
                 crossfade(true)
-                size(200, 200)
+                size(100, 100)
                 transformations(CircleCropTransformation())
             }
             generateUI(true, recyclerViewMenu)
         } else {
             appBarImage.load(userImage) {
                 crossfade(true)
-                size(200, 200)
+                size(100, 100)
                 transformations(CircleCropTransformation())
             }
-            changeAppTitle(appBarTitle, appBarImage)
         }
+        changeAppTitle(appBarTitle, appBarImage)
 
         signOut.setOnClickListener {
             FirebaseAuth.getInstance().signOut()
@@ -86,7 +85,7 @@ class HomePage : AppCompatActivity() {
 
     }
 
-    private fun generateGraph(graph: GraphView) {
+    private fun generateGraph(graph: GraphView?) {
         val loansSeries = LineGraphSeries(
             arrayOf(
                 DataPoint(1.0, 20.0),
@@ -119,8 +118,8 @@ class HomePage : AppCompatActivity() {
         shareSeries.backgroundColor = Color.argb(50, 229, 30, 173)
         shareSeries.thickness = 10
 
+        graph!!.addSeries(shareSeries)
         graph.addSeries(loansSeries)
-        graph.addSeries(shareSeries)
         graph.legendRenderer.isVisible = true
         graph.legendRenderer.align = LegendRenderer.LegendAlign.MIDDLE
         graph.legendRenderer.textColor = resources.getColor(android.R.color.white, null)
@@ -175,7 +174,7 @@ class HomePage : AppCompatActivity() {
     private fun listMembers() {
         val listMemberFragment = ListMembersFragment()
         val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.home_fragment_listMembers, listMemberFragment)
+        transaction.replace(R.id.home_fragment_frame, listMemberFragment)
         transaction.addToBackStack(null)
         transaction.commit()
         toast("List Members!")
@@ -192,83 +191,69 @@ class HomePage : AppCompatActivity() {
         val textViewAddShare: TextView = customDialog.findViewById(R.id.home_customDialog_tv_addShares)
 
         textViewAddShare.setOnClickListener {
+            val bundle : Bundle;
+            val addMemberFragment = AddMemberFragment()
+            val transaction = supportFragmentManager.beginTransaction()
+            transaction.replace(R.id.home_fragment_frame, addMemberFragment)
+            transaction.addToBackStack(null)
+            transaction.commit()
             customDialog.dismiss()
-            customDialog.setContentView(R.layout.custom_dialog_add_shares)
-
-            val cancelBtn: Button = customDialog.findViewById(R.id.custom_dialog_add_shares_btn_cancel)
-            val submitBtn: Button = customDialog.findViewById(R.id.custom_dialog_add_shares_btn_submit)
-            val email: EditText = customDialog.findViewById(R.id.custom_dialog_add_shares_et_email)
-            val amount: EditText = customDialog.findViewById(R.id.custom_dialog_add_shares_et_amount)
-
-            submitBtn.setOnClickListener {
-                val batch = db.batch()
-                val user = db.collection("users").whereEqualTo("email", email.text.toString()).get()
-                    .addOnSuccessListener { documents ->
-                        var docId: DocumentReference? = null
-                        for (document in documents) {
-                            if (document.data["email"].toString().equals(email.text.toString())) {
-                                docId = document.reference
-                                break
-                            }
-                        }
-
-                        if (docId != null) {
-                            batch.update(docId, "totalContributions", FieldValue.increment(1))
-                            batch.update(docId, "totalShares", FieldValue.increment(amount.text.toString().toDouble()))
-                            batch.commit().addOnSuccessListener {
-                                toast("Added ShareHolder!")
-                                customDialog.dismiss()
-                            }.addOnFailureListener {
-                                Log.w("FireStore: ", "Document Failed To Update!")
-                            }
-                        } else {
-
-                            toast("User does not exists!")
-                        }
-
-                    }.addOnFailureListener {
-                    Log.w("FireStore: ", "Document Failed To Update!")
-                }
-            }
-
-            cancelBtn.setOnClickListener {
-                customDialog.dismiss()
-            }
-
-            customDialog.show()
+//            customDialog.dismiss()
+//            customDialog.setContentView(R.layout.custom_dialog_add_shares)
+//
+//            val cancelBtn: Button = customDialog.findViewById(R.id.custom_dialog_add_shares_btn_cancel)
+//            val submitBtn: Button = customDialog.findViewById(R.id.custom_dialog_add_shares_btn_submit)
+//            val email: EditText = customDialog.findViewById(R.id.custom_dialog_add_shares_et_email)
+//            val amount: EditText = customDialog.findViewById(R.id.custom_dialog_add_shares_et_amount)
+//
+//            submitBtn.setOnClickListener {
+//                val batch = db.batch()
+//                val user = db.collection("users").whereEqualTo("email", email.text.toString()).get()
+//                    .addOnSuccessListener { documents ->
+//                        var docId: DocumentReference? = null
+//                        for (document in documents) {
+//                            if (document.data["email"].toString().equals(email.text.toString())) {
+//                                docId = document.reference
+//                                break
+//                            }
+//                        }
+//
+//                        if (docId != null) {
+//                            batch.update(docId, "totalContributions", FieldValue.increment(1))
+//                            batch.update(docId, "totalShares", FieldValue.increment(amount.text.toString().toDouble()))
+//                            batch.commit().addOnSuccessListener {
+//                                toast("Added ShareHolder!")
+//                                customDialog.dismiss()
+//                            }.addOnFailureListener {
+//                                Log.w("FireStore: ", "Document Failed To Update!")
+//                            }
+//                        } else {
+//
+//                            toast("User does not exists!")
+//                        }
+//
+//                    }.addOnFailureListener {
+//                    Log.w("FireStore: ", "Document Failed To Update!")
+//                }
+//            }
+//
+//            cancelBtn.setOnClickListener {
+//                customDialog.dismiss()
+//            }
+//
+//            customDialog.show()
 
         }
 
         textViewAddMember.setOnClickListener {
+
+            val addMemberFragment = AddMemberFragment()
+            val transaction = supportFragmentManager.beginTransaction()
+            transaction.replace(R.id.home_fragment_frame, addMemberFragment)
+            transaction.addToBackStack(null)
+            transaction.commit()
             customDialog.dismiss()
-            customDialog.setContentView(R.layout.custom_dialog_add_member)
 
-            val cancelBtn: Button = customDialog.findViewById(R.id.custom_dialog_add_member_btn_cancel)
-            val submitBtn: Button = customDialog.findViewById(R.id.custom_dialog_add_member_btn_submit)
-            val email: EditText = customDialog.findViewById(R.id.custom_dialog_add_member_et_email)
-            val firstName: EditText = customDialog.findViewById(R.id.custom_dialog_add_member_et_firstName)
-            val middleName: EditText = customDialog.findViewById(R.id.custom_dialog_add_member_et_middleName)
-            val lastName: EditText = customDialog.findViewById(R.id.custom_dialog_add_member_et_lastName)
-
-            cancelBtn.setOnClickListener {
-                customDialog.dismiss()
-            }
-
-            submitBtn.setOnClickListener {
-
-                if (email.text.toString().contains("@ciit.edu.ph")) {
-                    createUserAccount(
-                        email.text.toString(),
-                        "${firstName.text} ${middleName.text[0].toUpperCase()}. ${lastName.text}",
-                        null,
-                        null
-                    )
-                    customDialog.dismiss()
-                } else {
-                    toast("Please Use CIIT Email!")
-                }
-            }
-            customDialog.show()
         }
 
         closeBtn.setOnClickListener {
@@ -287,7 +272,7 @@ class HomePage : AppCompatActivity() {
         customDialog.show()
     }
 
-    private fun createUserAccount(email: String, name: String, profileImage: String?, id: String?) {
+    fun createUserAccount(email: String, name: String, profileImage: String?, id: String?) {
         val db = FirebaseFirestore.getInstance()
         val docRef = db.collection("users")
         var isUserExists = false
@@ -326,6 +311,23 @@ class HomePage : AppCompatActivity() {
             }
         }
     }
+    fun changeGraphVisibility(isHidden : Boolean){
+        if(!isHidden){
+            graphSummary!!.visibility = View.VISIBLE
+        } else {
+            graphSummary!!.visibility = View.INVISIBLE
+        }
+    }
+
+    fun changeHomeTitle(isHidden : Boolean, title : String){
+        homeTitle!!.text = title
+        if(!isHidden){
+            homeTitle!!.visibility = View.VISIBLE
+        } else {
+            homeTitle!!.visibility = View.INVISIBLE
+        }
+    }
+
 
     private fun changeAppTitle(appBarTitle: TextView, profileImage: ImageView) {
         appBarTitle.visibility = View.INVISIBLE

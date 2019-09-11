@@ -52,26 +52,6 @@ class LoginPage : AppCompatActivity() {
         val googleSignIn: SignInButton = findViewById(R.id.login_btn_googleSignIn)
         val toolBar: Toolbar? = findViewById(R.id.toolbar_custom)
         setSupportActionBar(toolBar)
-        val logo: ImageView = findViewById(R.id.toolbar_iv_logo)
-
-
-        // Load CIIT LOGO
-        Picasso.get().load(R.drawable.logo).resize(150, 150).into(object : Target {
-            override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
-                Log.d("Picasso:", "Getting Bitmap...")
-            }
-
-            override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
-                Log.e("Picasso:", "Load Bitmap Failed!")
-            }
-
-            override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
-                Log.d("Picasso:", "Load Bitmap Success!")
-                val dr: RoundedBitmapDrawable = RoundedBitmapDrawableFactory.create(resources, bitmap)
-                dr.setCornerRadius(10.0f)
-                logo.setImageDrawable(dr)
-            }
-        })
 
         submit.setOnClickListener {
             startLogin(username?.text.toString(), password?.text.toString())

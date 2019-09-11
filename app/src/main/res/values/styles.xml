@@ -3,12 +3,18 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">#3827b4</item>
-        <item name="colorPrimaryDark">#6c18a4</item>
-        <item name="colorAccent">#e51ead</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+        <item name="colorSecondary">@color/colorSecondary</item>
+        <item name="colorSurface">@color/colorOnSurface</item>
+        <item name="colorAccent">@color/colorAccent</item>
         <item name="colorError">#E1341E</item>
         <item name="android:colorBackground">@color/background</item>
         <item name="android:fontFamily">Roboto</item>
+
+        <item name="textInputStyle">@style/CustomTextInputLayout</item>
+        <item name="buttonStyle">@style/CustomButton</item>
     </style>
 
     <style name="CustomDialog" parent="Theme.MaterialComponents.Dialog">
@@ -28,6 +34,20 @@
         <item name="android:textSize">25sp</item>
         <item name="android:letterSpacing">0</item>
         <item name="android:color">#FFFFFF</item>
+    </style>
+
+    <style name="CustomTextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+        <item name="boxBackgroundColor">@color/colorOnPrimary</item>
+        <item name="boxStrokeColor">@color/colorSecondary</item>
+        <item name="android:textColorHint">@color/colorOnSurface</item>
+        <item name="android:textColor">@color/colorOnSurface</item>
+        <item name="android:textColorPrimary">@color/colorOnSurface</item>
+    </style>
+
+    <style name="CustomButton" parent="Widget.MaterialComponents.Button">
+        <item name="elevation">2dp</item>
+        <item name="backgroundTint">@color/colorSecondary</item>
+        <item name="android:background">@color/colorSecondary</item>
     </style>
 
     <color name="background">#FFFFFF</color>

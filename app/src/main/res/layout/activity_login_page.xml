@@ -1,80 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         tools:context=".LoginPage">
 
-    <include layout="@layout/customtoolbar"/>
-    <include layout="@layout/whitebg"/>
+    <include layout="@layout/customtoolbar" />
+    <include layout="@layout/whitebg" />
 
-
-
-    <LinearLayout android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:orientation="vertical"
-                  android:layout_centerInParent="true">
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:orientation="vertical">
 
         <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/login_layout_username"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-                android:layout_centerVertical="true"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                app:boxCornerRadiusBottomEnd="0dp"
+                app:boxCornerRadiusBottomStart="0dp"
+                app:boxCornerRadiusTopEnd="0dp"
+                app:boxCornerRadiusTopStart="0dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColorHint="#a4a2ad"
-                android:hint="Email">
+                android:layout_marginBottom="2dp"
+                android:hint="Email"
+                android:textColorHint="#a4a2ad">
 
             <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/login_et_username"
-                    android:textColor="#000000"
-                    android:background="#ffffff"
-                    android:singleLine="true"
-                    android:textSize="25sp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-            />
+                    android:background="#ffffff"
+                    android:singleLine="true"
+                    android:textColor="#000000"
+                    android:textSize="25sp" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/login_layout_password"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_below="@id/login_layout_username"
-                android:textColorHint="#a4a2ad"
-                android:hint="Password">
+                android:layout_marginBottom="2dp"
+                app:boxCornerRadiusBottomEnd="0dp"
+                app:boxCornerRadiusBottomStart="0dp"
+                app:boxCornerRadiusTopEnd="0dp"
+                app:boxCornerRadiusTopStart="0dp"
+                android:hint="Password"
+                android:textColorHint="#a4a2ad">
 
             <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/login_et_password"
-                    android:background="#ffffff"
-                    android:textColor="#000000"
-                    android:textSize="25sp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:singleLine="true"
+                    android:background="#ffffff"
                     android:inputType="textPassword"
-            />
+                    android:singleLine="true"
+                    android:textColor="#000000"
+                    android:textSize="25sp" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.button.MaterialButton
+                style="@style/CustomButton"
                 android:id="@+id/login_btn_signIn"
-                android:layout_margin="5sp"
                 android:layout_width="match_parent"
                 android:layout_height="60sp"
+                android:layout_margin="5dp"
                 android:elevation="6sp"
-                android:text="Sign In"/>
+                android:text="Sign In"
+                android:textColor="@android:color/black"
+                android:textStyle="bold"
+                android:backgroundTint="@color/colorSecondary"
+                />
 
         <com.google.android.gms.common.SignInButton
                 android:id="@+id/login_btn_googleSignIn"
-                android:layout_margin="5sp"
                 android:layout_width="match_parent"
                 android:layout_height="60sp"
                 android:layout_below="@id/login_btn_signIn"
-        />
+                android:layout_margin="5sp" />
     </LinearLayout>
 
 </RelativeLayout>
