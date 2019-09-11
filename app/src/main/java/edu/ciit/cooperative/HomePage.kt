@@ -23,6 +23,7 @@ import com.jjoe64.graphview.LegendRenderer
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import edu.ciit.cooperative.Fragments.AddMemberFragment
+import edu.ciit.cooperative.Fragments.AddShareholderFragment
 import edu.ciit.cooperative.Fragments.ListMembersFragment
 import edu.ciit.cooperative.Models.Menu
 import edu.ciit.cooperative.RecyclerViews.MenuAdapter
@@ -135,7 +136,8 @@ class HomePage : AppCompatActivity() {
         val layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         if (isAdmin) {
             menuList.add(Menu("Members"))
-            menuList.add(Menu("Members/Shares"))
+            menuList.add(Menu("Add Member"))
+            menuList.add(Menu("Add Shareholder"))
             menuList.add(Menu("Loans"))
             menuList.add(Menu("Shares"))
             menuList.add(Menu("Loan Requests"))
@@ -144,6 +146,7 @@ class HomePage : AppCompatActivity() {
             colorList.add(Color.argb(215, 56, 39, 180))
             colorList.add(Color.argb(215, 224, 140, 192))
             colorList.add(Color.argb(215, 108, 24, 164))
+            colorList.add(Color.argb(215, 56, 39, 180))
             colorList.add(Color.argb(215, 56, 39, 180))
 
         } else {
@@ -163,7 +166,8 @@ class HomePage : AppCompatActivity() {
 
         when (menuItem.title) {
             "Members" -> listMembers()
-            "Members/Shares" -> addMembers()
+            "Add Member" -> addMembers()
+            "Add Shareholder" -> addShareholder()
             "Loans" -> Log.d(TAG, "Loans")
             "Shares" -> Log.d(TAG, "Shares")
             "Loan Requests" -> Log.d(TAG, "Loan Requests")
@@ -180,96 +184,22 @@ class HomePage : AppCompatActivity() {
         toast("List Members!")
     }
 
+    private fun addShareholder() {
+        val addShareholderFragment = AddShareholderFragment()
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.replace(R.id.home_fragment_frame, addShareholderFragment)
+        transaction.addToBackStack(null)
+        transaction.commit()
+
+    }
+
+
     private fun addMembers() {
-        val customDialog = Dialog(this)
-        customDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        customDialog.setContentView(R.layout.custom_dialog_add_member_menu)
-        customDialog.setCancelable(false)
-
-        val closeBtn: ImageView = customDialog.findViewById(R.id.home_customDialog_close)
-        val textViewAddMember: TextView = customDialog.findViewById(R.id.home_customDialog_tv_addMember)
-        val textViewAddShare: TextView = customDialog.findViewById(R.id.home_customDialog_tv_addShares)
-
-        textViewAddShare.setOnClickListener {
-            val bundle : Bundle;
-            val addMemberFragment = AddMemberFragment()
-            val transaction = supportFragmentManager.beginTransaction()
-            transaction.replace(R.id.home_fragment_frame, addMemberFragment)
-            transaction.addToBackStack(null)
-            transaction.commit()
-            customDialog.dismiss()
-//            customDialog.dismiss()
-//            customDialog.setContentView(R.layout.custom_dialog_add_shares)
-//
-//            val cancelBtn: Button = customDialog.findViewById(R.id.custom_dialog_add_shares_btn_cancel)
-//            val submitBtn: Button = customDialog.findViewById(R.id.custom_dialog_add_shares_btn_submit)
-//            val email: EditText = customDialog.findViewById(R.id.custom_dialog_add_shares_et_email)
-//            val amount: EditText = customDialog.findViewById(R.id.custom_dialog_add_shares_et_amount)
-//
-//            submitBtn.setOnClickListener {
-//                val batch = db.batch()
-//                val user = db.collection("users").whereEqualTo("email", email.text.toString()).get()
-//                    .addOnSuccessListener { documents ->
-//                        var docId: DocumentReference? = null
-//                        for (document in documents) {
-//                            if (document.data["email"].toString().equals(email.text.toString())) {
-//                                docId = document.reference
-//                                break
-//                            }
-//                        }
-//
-//                        if (docId != null) {
-//                            batch.update(docId, "totalContributions", FieldValue.increment(1))
-//                            batch.update(docId, "totalShares", FieldValue.increment(amount.text.toString().toDouble()))
-//                            batch.commit().addOnSuccessListener {
-//                                toast("Added ShareHolder!")
-//                                customDialog.dismiss()
-//                            }.addOnFailureListener {
-//                                Log.w("FireStore: ", "Document Failed To Update!")
-//                            }
-//                        } else {
-//
-//                            toast("User does not exists!")
-//                        }
-//
-//                    }.addOnFailureListener {
-//                    Log.w("FireStore: ", "Document Failed To Update!")
-//                }
-//            }
-//
-//            cancelBtn.setOnClickListener {
-//                customDialog.dismiss()
-//            }
-//
-//            customDialog.show()
-
-        }
-
-        textViewAddMember.setOnClickListener {
-
-            val addMemberFragment = AddMemberFragment()
-            val transaction = supportFragmentManager.beginTransaction()
-            transaction.replace(R.id.home_fragment_frame, addMemberFragment)
-            transaction.addToBackStack(null)
-            transaction.commit()
-            customDialog.dismiss()
-
-        }
-
-        closeBtn.setOnClickListener {
-
-            customDialog.dismiss()
-        }
-
-        customDialog.setOnShowListener {
-            //            memberFirestoreRecyclerAdapter!!.startListening()
-        }
-
-        customDialog.setOnDismissListener {
-            //            memberFirestoreRecyclerAdapter!!.stopListening()
-        }
-
-        customDialog.show()
+        val addMemberFragment = AddMemberFragment()
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.replace(R.id.home_fragment_frame, addMemberFragment)
+        transaction.addToBackStack(null)
+        transaction.commit()
     }
 
     fun createUserAccount(email: String, name: String, profileImage: String?, id: String?) {
