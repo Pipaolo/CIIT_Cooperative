@@ -71,9 +71,9 @@
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="10sp"
             android:layout_marginRight="10sp"
-            android:backgroundTint="@color/colorPrimary"
+            android:backgroundTint="@color/colorSecondary"
             app:cornerRadius="10dp"
-            android:visibility="invisible"
+            android:visibility="visible"
             android:text="Sign Out"/>
 
     <FrameLayout

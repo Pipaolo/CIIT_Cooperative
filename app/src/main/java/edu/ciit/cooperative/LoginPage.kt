@@ -1,16 +1,18 @@
 package edu.ciit.cooperative
 
+import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Path
 import android.os.Bundle
+import android.util.AttributeSet
 import android.util.Log
-import android.widget.ImageView
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.graphics.drawable.RoundedBitmapDrawable
-import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -26,6 +28,10 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.wajahatkarim3.easyvalidation.core.view_ktx.contains
+import com.wajahatkarim3.easyvalidation.core.view_ktx.nonEmpty
+import kotlinx.android.synthetic.main.activity_login_page.*
+import org.jetbrains.anko.doAsync
 
 class LoginPage : AppCompatActivity() {
     //Sign In
@@ -51,11 +57,42 @@ class LoginPage : AppCompatActivity() {
         val toolBar: Toolbar? = findViewById(R.id.toolbar_custom)
         setSupportActionBar(toolBar)
 
+
+        username!!.setOnFocusChangeListener { v, hasFocus ->
+            if (!hasFocus) {
+                if (username.nonEmpty()) {
+                    if (!username.text.toString().contains("ciit.edu.ph")) {
+                        Log.d("tag", username.text.toString())
+                        login_layout_username.error = "Use CIIT Email"
+                    } else {
+                        login_layout_username.isErrorEnabled = false
+                    }
+
+                } else {
+                    login_layout_username.error = "Field cannot be empty!"
+                }
+
+            } else {
+
+            }
+        }
+
+        password!!.setOnFocusChangeListener { v, hasFocus ->
+            if (!hasFocus) {
+                (getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
+                    .hideSoftInputFromWindow(v.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+
+            }
+        }
+
+
         submit.setOnClickListener {
-            startLogin(username?.text.toString(), password?.text.toString())
+            doAsync { startLogin(username?.text.toString(), password?.text.toString()) }
         }
         googleSignIn.setOnClickListener {
-            signIn()
+            doAsync {
+                signIn()
+            }
         }
     }
 
@@ -98,7 +135,6 @@ class LoginPage : AppCompatActivity() {
 
     private fun goToHomePage(user: FirebaseUser) {
         val intent = Intent(this, HomePage::class.java)
-
         Toast.makeText(this, "Welcome ${user.displayName}!", Toast.LENGTH_LONG).show()
         intent.putExtra("email", user.email)
         intent.putExtra("userImage", user.photoUrl.toString())
@@ -111,6 +147,7 @@ class LoginPage : AppCompatActivity() {
 
         Toast.makeText(this, "Welcome ${user["name"]}!", Toast.LENGTH_LONG).show()
         intent.putExtra("email", user["email"].toString())
+        intent.putExtra("isAbleToLoan", user["isAbleToLoan"].toString().toBoolean())
         intent.putExtra("userImage", user["profileImage"].toString())
         startActivity(intent)
         finish()
@@ -155,18 +192,29 @@ class LoginPage : AppCompatActivity() {
         db.collection("users").whereEqualTo("email", email).whereEqualTo("password", password).get()
             .addOnSuccessListener { documents ->
                 for (document in documents) {
-                    Log.d(TAG, "${document.id} => ${document.data}")
-                    Toast.makeText(this, "Welcome ${document.data["name"]}!", Toast.LENGTH_LONG).show()
-                    val credential: AuthCredential = GoogleAuthProvider.getCredential(document["id"].toString(), null)
-                    FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener {
-                        Toast.makeText(this, "Welcome ${document.data["name"]}!", Toast.LENGTH_LONG).show()
-                        goToHomePage(document)
+                    val credential: AuthCredential =
+                        GoogleAuthProvider.getCredential(document["id"].toString(), null)
+                    FirebaseAuth.getInstance().signInWithCredential(credential)
+                        .addOnCompleteListener {
+                            Toast.makeText(
+                                this,
+                                "Welcome ${document.data["name"]}!",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            goToHomePage(document)
+                        }
                 }
-            }
+                if(documents.isEmpty){
+                    Toast.makeText(
+                        this,
+                        "User not found!",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+
             }.addOnFailureListener { exception ->
-            Toast.makeText(this, "Please Sign In, Through Google First", Toast.LENGTH_LONG).show()
-            Log.w(TAG, "Error getting documents: ", exception)
-        }
+                Log.w(TAG, "Error getting documents: ", exception)
+            }
     }
 
     private fun createUserAccount(email: String, name: String, profileImage: String, id: String?) {
@@ -182,6 +230,44 @@ class LoginPage : AppCompatActivity() {
         }.addOnFailureListener { e ->
             Log.w(TAG, "Error adding document", e)
         }
+    }
+}
+
+class BackgroundView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
+
+    private val linePaint = Paint()
+    private val lineLightBlue = Path()
+    private val lineDarkBlue = Path()
+
+    override fun onDraw(canvas: Canvas?) {
+        linePaint.color = resources.getColor(R.color.colorPrimary, null)
+        lineDarkBlue.moveTo(width.toFloat(), height * 0.3f)
+        lineDarkBlue.lineTo(width.toFloat(), height.toFloat())
+        lineDarkBlue.lineTo(0.0f, height.toFloat())
+
+        canvas!!.drawPath(lineDarkBlue, linePaint)
+
+        linePaint.color = resources.getColor(R.color.colorSecondary, null)
+        lineLightBlue.moveTo(width * 0.6f, 0.0f)
+        lineLightBlue.lineTo(width.toFloat(), 0.0f)
+        lineLightBlue.lineTo(width.toFloat(), height * 0.3f)
+
+        canvas!!.drawPath(lineLightBlue, linePaint)
+
+        super.onDraw(canvas)
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val widthMode = View.MeasureSpec.getMode(widthMeasureSpec)
+        val heightMode = View.MeasureSpec.getMode(heightMeasureSpec)
+
+        val widthSize = View.MeasureSpec.getSize(widthMeasureSpec)
+        val heightSize = View.MeasureSpec.getSize(heightMeasureSpec)
+
+
+        invalidate()
+        setMeasuredDimension(widthSize, heightSize)
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
     }
 }
 

@@ -14,7 +14,6 @@ import edu.ciit.cooperative.R
 class MenuAdapter(
     val context: Context?,
     val menuList: ArrayList<Menu>,
-    val colorList: ArrayList<Int>,
     val clickListener: (Menu) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -30,16 +29,15 @@ class MenuAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
-        (holder as MenuViewHolder).bind(menuList[position], colorList[position], clickListener)
+        (holder as MenuViewHolder).bind(menuList[position], clickListener)
 
     }
 
     class MenuViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val menuTitle: TextView = view.findViewById(R.id.home_cardView_dashboardMenuTitle)
         val menuCardView: CardView = view.findViewById(R.id.home_cardView_dashboardMenu)
-        fun bind(menu: Menu, color: Int, clickListener: (Menu) -> Unit) {
+        fun bind(menu: Menu, clickListener: (Menu) -> Unit) {
             menuTitle.text = menu.title
-            menuCardView.setCardBackgroundColor(color)
             menuCardView.setOnClickListener { clickListener(menu) }
         }
     }

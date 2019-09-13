@@ -20,9 +20,12 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import edu.ciit.cooperative.HomePage
 import edu.ciit.cooperative.Models.Member
 import edu.ciit.cooperative.R
-import org.jetbrains.anko.find
+import kotlinx.android.synthetic.main.custom_dialog_member_status.*
+import kotlinx.android.synthetic.main.fragment_list_members.view.*
+import kotlinx.android.synthetic.main.home_member_card.view.*
 
 class ListMembersFragment : Fragment() {
     private var memberFirestoreRecyclerAdapter: MemberFirestoreRecyclerAdapter? = null
@@ -32,12 +35,14 @@ class ListMembersFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_list_members, container, false)
-        val recyclerView: RecyclerView = view.findViewById(R.id.fragment_listMembers_recyclerView)
+        val recyclerView: RecyclerView = view.fragment_listMembers_recyclerView
         recyclerView.layoutManager = LinearLayoutManager(activity?.applicationContext)
 
         val rootRef = FirebaseFirestore.getInstance()
         val query = rootRef.collection("users").orderBy("email", Query.Direction.ASCENDING)
         val options = FirestoreRecyclerOptions.Builder<Member>().setQuery(query, Member::class.java).build()
+
+        (activity as HomePage).showSignOutButton(true)
 
         memberFirestoreRecyclerAdapter = MemberFirestoreRecyclerAdapter(options)
         recyclerView.adapter = memberFirestoreRecyclerAdapter
@@ -45,11 +50,11 @@ class ListMembersFragment : Fragment() {
         return view
     }
 
-    private inner class MemberViewHolder internal constructor(private val view: View) : RecyclerView.ViewHolder(view),
+    private inner class MemberViewHolder internal constructor(view: View) : RecyclerView.ViewHolder(view),
         View.OnLongClickListener {
-        val switchAbletoloan: SwitchCompat = view.findViewById(R.id.home_member_card_switch_loan)
-        val textviewName: TextView = view.findViewById(R.id.home_member_card_tv_name)
-        val imageviewProfile: ImageView = view.findViewById(R.id.home_member_card_iv_profileImage)
+        val isAbleToLoan: SwitchCompat = view.home_member_card_switch_loan
+        val textviewName: TextView = view.home_member_card_tv_name
+        val imageProfile: ImageView = view.home_member_card_iv_profileImage
 
         var profileImage: String? = null
         var email = ""
@@ -90,9 +95,9 @@ class ListMembersFragment : Fragment() {
             this.totalContributions = totalContributions1
 
             textviewName.text = name1
-            switchAbletoloan.isChecked = ableToLoan1
+            isAbleToLoan.isChecked = ableToLoan1
 
-            switchAbletoloan.setOnCheckedChangeListener { compoundButton, b ->
+            isAbleToLoan.setOnCheckedChangeListener { compoundButton, b ->
                 if (b) {
                     val user = FirebaseFirestore.getInstance().collection("users").document(email1)
                     user.update("isAbleToLoan", true).addOnSuccessListener {
@@ -106,7 +111,7 @@ class ListMembersFragment : Fragment() {
                 }
             }
 
-            imageviewProfile.load(profileImage1) {
+            imageProfile.load(profileImage1) {
                 placeholder(R.drawable.ic_person_black_24dp)
                 crossfade(true)
                 size(200)
@@ -165,14 +170,14 @@ class ListMembersFragment : Fragment() {
         customDialog.setCancelable(true)
 
 
-        val imageViewProfile: ImageView = customDialog.find(R.id.customDialog_member_status_profileImage)
-        val textViewEmail: TextView = customDialog.find(R.id.customDialog_member_status_email)
-        val textViewName: TextView = customDialog.find(R.id.customDialog_member_status_name)
-        val textViewPassword: TextView = customDialog.find(R.id.customDialog_member_status_password)
-        val textViewIsAbleToLoan: TextView = customDialog.find(R.id.customDialog_member_status_isAbleToLoan)
-        val textViewTotalLoan: TextView = customDialog.find(R.id.customDialog_member_status_totalLoan)
-        val textViewTotalShare: TextView = customDialog.find(R.id.customDialog_member_status_totalShare)
-        val textViewTotalContribution: TextView = customDialog.find(R.id.customDialog_member_status_contribution)
+        val imageViewProfile: ImageView = customDialog.customDialog_member_status_profileImage
+        val textViewEmail: TextView = customDialog.customDialog_member_status_email
+        val textViewName: TextView = customDialog.customDialog_member_status_name
+        val textViewPassword: TextView = customDialog.customDialog_member_status_password
+        val textViewIsAbleToLoan: TextView = customDialog.customDialog_member_status_isAbleToLoan
+        val textViewTotalLoan: TextView = customDialog.customDialog_member_status_totalLoan
+        val textViewTotalShare: TextView = customDialog.customDialog_member_status_totalShare
+        val textViewTotalContribution: TextView = customDialog.customDialog_member_status_contribution
 
         if (profileImage != null) {
             imageViewProfile.load(profileImage) {
@@ -188,15 +193,21 @@ class ListMembersFragment : Fragment() {
             }
         }
 
-        textViewEmail.text = "Email: $email"
-        textViewName.text = "Name: $name"
-        textViewPassword.text = "Password: $password"
-        textViewIsAbleToLoan.text = "Allowed To Loan: $ableToLoan"
-        textViewTotalLoan.text = "Total Loans: P$totalLoans"
-        textViewTotalShare.text = "Total Shares: P$totalShares"
-        textViewTotalContribution.text = "Contributions: $totalContributions"
+        textViewEmail.text = activity!!.applicationContext.getString(R.string.member_email, email)
+        textViewName.text = activity!!.applicationContext.getString(R.string.member_name, name)
+        textViewPassword.text = activity!!.applicationContext.getString(R.string.member_password, password)
+        textViewIsAbleToLoan.text = activity!!.applicationContext.getString(R.string.member_isAbleToLoan, ableToLoan.toString())
+        textViewTotalLoan.text = activity!!.applicationContext.getString(R.string.member_totalLoan, totalLoans.toString())
+        textViewTotalShare.text = activity!!.applicationContext.getString(R.string.member_totalShare, totalShares.toString())
+        textViewTotalContribution.text = activity!!.applicationContext.getString(R.string.member_totalContribution, totalContributions.toString())
 
         customDialog.show()
+
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        (activity as HomePage).showSignOutButton(false)
     }
 
 }

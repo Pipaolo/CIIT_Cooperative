@@ -1,13 +1,13 @@
 package edu.ciit.cooperative
 
-import android.app.Dialog
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.view.Window
-import android.widget.*
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -15,8 +15,6 @@ import coil.api.load
 import coil.transform.CircleCropTransformation
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.LegendRenderer
@@ -27,34 +25,40 @@ import edu.ciit.cooperative.Fragments.AddShareholderFragment
 import edu.ciit.cooperative.Fragments.ListMembersFragment
 import edu.ciit.cooperative.Models.Menu
 import edu.ciit.cooperative.RecyclerViews.MenuAdapter
+import kotlinx.android.synthetic.main.activity_home_page.*
+import kotlinx.android.synthetic.main.customtoolbar.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.uiThread
 
 class HomePage : AppCompatActivity() {
-
     val db = FirebaseFirestore.getInstance()
     val TAG = "HOMEPAGE:"
     var homeTitle: TextView? = null
     var graphSummary: GraphView? = null
+    var signOut: MaterialButton? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home_page)
         FirebaseFirestore.setLoggingEnabled(true)
-        val string: String? = intent.getStringExtra("email")
-        val userImage: String? = intent.getStringExtra("userImage")
-        val signOut: MaterialButton = findViewById(R.id.home_btn_signOut)
 
-        val appBarMenu: ImageView = findViewById(R.id.toolbar_iv_menu)
-        val appBarTitle: TextView = findViewById(R.id.toolbar_tv_title)
-        val appBarImage: ImageView = findViewById(R.id.toolbar_iv_profile)
-        val appBarUserStatus: TextView = findViewById(R.id.toolbar_tv_userStatus)
-        val recyclerViewMenu: RecyclerView = findViewById(R.id.home_recyclerView_menu)
-        graphSummary = findViewById(R.id.home_graphView_summary)
-        homeTitle = findViewById(R.id.home_panel_title)
+        val string: String? = intent.getStringExtra("email")
+        val userIsAbleToLoan: Boolean = intent.getBooleanExtra("isAbleToLoan", false)
+        val userImage: String? = intent.getStringExtra("userImage")
+
+        val appBarMenu: ImageView = toolbar_iv_menu
+        val appBarTitle: TextView = toolbar_tv_title
+        val appBarImage: ImageView = toolbar_iv_profile
+        val appBarUserStatus: TextView = toolbar_tv_userStatus
+        val recyclerViewMenu: RecyclerView = home_recyclerView_menu
+
+        signOut = home_btn_signOut
+        graphSummary = home_graphView_summary
+        homeTitle = home_panel_title
 
         generateGraph(graphSummary)
+
 
         appBarMenu.visibility = View.VISIBLE
 
@@ -65,17 +69,21 @@ class HomePage : AppCompatActivity() {
                 size(100, 100)
                 transformations(CircleCropTransformation())
             }
-            generateUI(true, recyclerViewMenu)
+            generateUI(true, isAbleToLoan = true, menu = recyclerViewMenu)
         } else {
+            appBarUserStatus.visibility = View.VISIBLE
+            appBarUserStatus.text = "Member"
             appBarImage.load(userImage) {
                 crossfade(true)
                 size(100, 100)
+                placeholder(R.drawable.ic_person_black_24dp)
                 transformations(CircleCropTransformation())
             }
+            generateUI(false, isAbleToLoan = userIsAbleToLoan, menu = recyclerViewMenu)
         }
         changeAppTitle(appBarTitle, appBarImage)
 
-        signOut.setOnClickListener {
+        signOut!!.setOnClickListener {
             FirebaseAuth.getInstance().signOut()
             val intent = Intent(this, LoginPage::class.java)
             startActivity(intent)
@@ -130,9 +138,8 @@ class HomePage : AppCompatActivity() {
         graph.gridLabelRenderer.gridColor = resources.getColor(android.R.color.transparent, null)
     }
 
-    private fun generateUI(isAdmin: Boolean, menu: RecyclerView) {
+    private fun generateUI(isAdmin: Boolean, isAbleToLoan: Boolean, menu: RecyclerView) {
         val menuList = ArrayList<Menu>()
-        val colorList = ArrayList<Int>()
         val layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         if (isAdmin) {
             menuList.add(Menu("Members"))
@@ -141,22 +148,16 @@ class HomePage : AppCompatActivity() {
             menuList.add(Menu("Loans"))
             menuList.add(Menu("Shares"))
             menuList.add(Menu("Loan Requests"))
-
-            colorList.add(Color.argb(215, 108, 24, 164))
-            colorList.add(Color.argb(215, 56, 39, 180))
-            colorList.add(Color.argb(215, 224, 140, 192))
-            colorList.add(Color.argb(215, 108, 24, 164))
-            colorList.add(Color.argb(215, 56, 39, 180))
-            colorList.add(Color.argb(215, 56, 39, 180))
-
         } else {
-
+            menuList.add(Menu("Loans"))
+            if(isAbleToLoan){
+                menuList.add(Menu("Loan Request"))
+            }
         }
         val adapter = MenuAdapter(
             this,
-            menuList,
-            colorList,
-            { menuItem: Menu -> menuItemClicked(menuItem) })
+            menuList
+        ) { menuItem: Menu -> menuItemClicked(menuItem) }
         menu.setHasFixedSize(true)
         menu.layoutManager = layoutManager
         menu.adapter = adapter
@@ -181,7 +182,6 @@ class HomePage : AppCompatActivity() {
         transaction.replace(R.id.home_fragment_frame, listMemberFragment)
         transaction.addToBackStack(null)
         transaction.commit()
-        toast("List Members!")
     }
 
     private fun addShareholder() {
@@ -258,9 +258,18 @@ class HomePage : AppCompatActivity() {
         }
     }
 
+    fun showSignOutButton(isHidden: Boolean){
+        if(!isHidden){
+            signOut!!.visibility = View.VISIBLE
+        } else {
+            signOut!!.visibility = View.INVISIBLE
+        }
+    }
+
 
     private fun changeAppTitle(appBarTitle: TextView, profileImage: ImageView) {
         appBarTitle.visibility = View.INVISIBLE
         profileImage.visibility = View.VISIBLE
     }
 }
+

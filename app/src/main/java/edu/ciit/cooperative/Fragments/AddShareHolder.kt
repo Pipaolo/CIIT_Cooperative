@@ -1,18 +1,14 @@
 package edu.ciit.cooperative.Fragments
 
-import android.content.Context
-import android.content.DialogInterface
-import android.net.Uri
 import android.os.Bundle
-import android.text.Layout
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import coil.api.load
@@ -20,11 +16,11 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 import edu.ciit.cooperative.HomePage
 import edu.ciit.cooperative.Models.Member
-
 import edu.ciit.cooperative.R
+import kotlinx.android.synthetic.main.add_shareholder_membercard.view.*
+import kotlinx.android.synthetic.main.fragment_add_shareholder.view.*
 
 class AddShareholderFragment : Fragment() {
     private var addShareholderFirestoreRecyclerAdapter: AddShareholderFirestoreRecyclerAdapter? = null
@@ -34,7 +30,7 @@ class AddShareholderFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_add_shareholder, container, false)
-        val recyclerView: RecyclerView = view.findViewById(R.id.addShareholder_recyclerView)
+        val recyclerView: RecyclerView = view.addShareholder_recyclerView
         recyclerView.layoutManager = LinearLayoutManager(activity?.applicationContext)
         val rootRef = FirebaseFirestore.getInstance()
         val query = rootRef.collection("users").whereEqualTo("isShareholder", false)
@@ -42,6 +38,7 @@ class AddShareholderFragment : Fragment() {
 
         (activity as HomePage).changeGraphVisibility(true)
         (activity as HomePage).changeHomeTitle(false, "Add Shareholder")
+        (activity as HomePage).showSignOutButton(true)
 
         addShareholderFirestoreRecyclerAdapter = AddShareholderFirestoreRecyclerAdapter(options)
         recyclerView.adapter = addShareholderFirestoreRecyclerAdapter
@@ -51,8 +48,8 @@ class AddShareholderFragment : Fragment() {
 
     private inner class AddShareholderFragmentViewHolder internal constructor(private val view: View): RecyclerView.ViewHolder(view),
             View.OnClickListener {
-        val textViewName : TextView = view.findViewById(R.id.addShareholder_card_tv_name)
-        val imageViewProfileImage : ImageView = view.findViewById(R.id.addShareholder_card_iv_profileImage)
+        val textViewName : TextView = view.addShareholder_card_tv_name
+        val imageViewProfileImage : ImageView = view.addShareholder_card_iv_profileImage
         var email: String = ""
 
         init {
@@ -98,6 +95,7 @@ class AddShareholderFragment : Fragment() {
     override fun onDetach() {
         (activity as HomePage).changeGraphVisibility(false)
         (activity as HomePage).changeHomeTitle(true, "Add Shareholder")
+        (activity as HomePage).showSignOutButton(false)
         super.onDetach()
     }
 
