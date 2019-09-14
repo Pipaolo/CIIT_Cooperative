@@ -1,5 +1,6 @@
 package edu.ciit.cooperative.Fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -46,15 +47,20 @@ class AddShareholderFragment : Fragment() {
         return view
     }
 
+    private inner class DragAdapter (adapter: AddShareholderFirestoreRecyclerAdapter, context: Context)
+
     private inner class AddShareholderFragmentViewHolder internal constructor(private val view: View): RecyclerView.ViewHolder(view),
             View.OnClickListener {
         val textViewName : TextView = view.addShareholder_card_tv_name
         val imageViewProfileImage : ImageView = view.addShareholder_card_iv_profileImage
         var email: String = ""
 
+
         init {
             view.setOnClickListener(this)
         }
+
+
 
         override fun onClick(v: View?) {
             MaterialAlertDialogBuilder(context, R.style.ThemeOverlay_MaterialComponents_Light)
